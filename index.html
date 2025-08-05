@@ -102,7 +102,8 @@
         if (countdownTime <= 0) {
             clearInterval(countdownInterval);
             fetchLottoResults(); // Fetch new results when countdown reaches zero
-            countdownTime = 10; // Reset countdown
+            countdownTime = 10; // Reset countdown to 10 seconds
+            countdownElement.textContent = countdownTime; // Update the display
         }
     }, 1000);
 </script>
