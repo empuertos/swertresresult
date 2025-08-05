@@ -76,6 +76,25 @@
 </div>
 
 <script>
+    let countdownElement = document.getElementById('countdown');
+    let countdownTime = 10;
+    let countdownInterval;
+
+    function startCountdown() {
+        countdownInterval = setInterval(() => {
+            countdownTime--;
+            countdownElement.textContent = countdownTime;
+
+            if (countdownTime <= 0) {
+                clearInterval(countdownInterval);
+                fetchLottoResults(); // Fetch new results when countdown reaches zero
+                countdownTime = 10; // Reset countdown to 10 seconds
+                countdownElement.textContent = countdownTime; // Update the display
+                startCountdown(); // Restart the countdown
+            }
+        }, 1000);
+    }
+
     async function fetchLottoResults() {
         try {
             const response = await fetch('https://www.lottopcso.com/swertres-result-today/');
@@ -91,21 +110,8 @@
         }
     }
 
-    // Countdown timer
-    let countdownElement = document.getElementById('countdown');
-    let countdownTime = 10;
-
-    const countdownInterval = setInterval(() => {
-        countdownTime--;
-        countdownElement.textContent = countdownTime;
-
-        if (countdownTime <= 0) {
-            clearInterval(countdownInterval);
-            fetchLottoResults(); // Fetch new results when countdown reaches zero
-            countdownTime = 10; // Reset countdown to 10 seconds
-            countdownElement.textContent = countdownTime; // Update the display
-        }
-    }, 1000);
+    // Start the countdown when the page loads
+    startCountdown();
 </script>
 
 </body>
