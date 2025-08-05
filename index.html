@@ -1,134 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>3D Lotto OBS Snippet</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    /* Transparent background for OBS overlay */
-    body {
-      margin: 0;
-      padding: 8px 12px;
-      background: rgba(0,0,0,0);
-      color: #ffffff;
-      font-family: "Segoe UI", system-ui,-apple-system,BlinkMacSystemFont,monospace;
-      font-size: 20px;
-      line-height: 1.2;
-      -webkit-font-smoothing: antialiased;
-      display: inline-block;
-      white-space: pre;
-    }
-    .container {
-      background: rgba(0,0,0,0.6);
-      padding: 10px 14px;
-      border-radius: 8px;
-      display: inline-block;
-      min-width: 260px;
-    }
-    .title {
-      font-weight: 700;
-      margin: 0 0 4px 0;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .line {
-      margin: 0;
-    }
-    .highlight {
-      font-weight: 600;
-    }
-    .small {
-      font-size: 0.85em;
-      opacity: 0.9;
-    }
-    .editable {
-      background: rgba(255,255,255,0.05);
-      border: none;
-      color: #fff;
-      font: inherit;
-      width: 60px;
-      padding: 0 4px;
-      border-radius: 4px;
-      text-align: center;
-    }
-    .label {
-      display: inline-block;
-      width: 90px;
-    }
-    .hidden-inputs { display: none; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCSO Lotto Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .section-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .section-box {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        h4 {
+            color: #007BFF;
+            margin: 10px 0;
+        }
+
+        p {
+            font-size: 1.1em;
+            color: #555;
+            margin: 5px 0;
+        }
+
+        strong {
+            color: #333;
+        }
+
+        .countdown {
+            font-size: 1.2em;
+            color: #FF5733;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-  <div class="container" aria-label="3D Lotto Results OBS snippet">
-    <div class="title">🎲 3D Lotto Results Today</div>
-    <div class="line small" id="lastUpdated">Last updated: --:--:-- AM</div>
-    <div class="line">
-      <span class="label">2:00 PM:</span>
-      <input class="editable" id="r2" maxlength="10" placeholder="—" />
-    </div>
-    <div class="line">
-      <span class="label">5:00 PM:</span>
-      <input class="editable" id="r5" maxlength="10" placeholder="—" />
-    </div>
-    <div class="line">
-      <span class="label">9:00 PM:</span>
-      <input class="editable" id="r9" maxlength="10" placeholder="—" />
-    </div>
-  </div>
 
-  <script>
-    // Utilities
-    function getManilaTimeString() {
-      const now = new Date();
-      return now.toLocaleTimeString("en-US", {
-        hour12: true,
-        hour: "numeric",
-        minute: "2-digit",
-        second: "2-digit",
-        timeZone: "Asia/Manila"
-      });
+<div class="section-container">
+    <div class="section-box">
+        <h3>PCSO Lotto Results Today</h3>
+        <p>Here are the complete PCSO Swertres 3D lotto results today:</p>
+
+        <h4>3D Lotto</h4>
+        <p>August 5, 2025</p>
+        <p><strong>2:00 PM:</strong> Stand by…</p>
+        <p><strong>5:00 PM:</strong> *</p>
+        <p><strong>9:00 PM:</strong> *</p>
+        <p>~Source/Courtesy: PCSO Official</p>
+
+        <div class="countdown">
+            ⏳ Refreshing in <span id="countdown">10</span> seconds...
+        </div>
+    </div>
+</div>
+
+<script>
+    async function fetchLottoResults() {
+        try {
+            const response = await fetch('https://www.lottopcso.com/swertres-result-today/');
+            const data = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data, 'text/html');
+            const results = doc.querySelector('.lotto-results'); // Adjust selector based on actual HTML structure
+            
+            // Update the HTML with the new results
+            document.querySelector('.section-box').innerHTML = results.innerHTML;
+        } catch (error) {
+            console.error('Error fetching lotto results:', error);
+        }
     }
 
-    // Elements
-    const lastUpdatedEl = document.getElementById("lastUpdated");
-    const input2 = document.getElementById("r2");
-    const input5 = document.getElementById("r5");
-    const input9 = document.getElementById("r9");
+    // Countdown timer
+    let countdownElement = document.getElementById('countdown');
+    let countdownTime = 10;
 
-    // Load persisted
-    function load() {
-      try {
-        const saved = JSON.parse(localStorage.getItem("obs_lotto_snippet") || "{}");
-        if (saved["2pm"]) input2.value = saved["2pm"];
-        if (saved["5pm"]) input5.value = saved["5pm"];
-        if (saved["9pm"]) input9.value = saved["9pm"];
-      } catch {}
-    }
+    const countdownInterval = setInterval(() => {
+        countdownTime--;
+        countdownElement.textContent = countdownTime;
 
-    // Persist on change
-    function persist() {
-      const obj = {
-        "2pm": input2.value.trim(),
-        "5pm": input5.value.trim(),
-        "9pm": input9.value.trim()
-      };
-      localStorage.setItem("obs_lotto_snippet", JSON.stringify(obj));
-    }
-
-    // Update time every second
-    setInterval(() => {
-      lastUpdatedEl.textContent = "Last updated: " + getManilaTimeString();
+        if (countdownTime <= 0) {
+            clearInterval(countdownInterval);
+            fetchLottoResults(); // Fetch new results when countdown reaches zero
+            countdownTime = 10; // Reset countdown
+        }
     }, 1000);
+</script>
 
-    // Hooks
-    [input2, input5, input9].forEach(i => {
-      i.addEventListener("input", persist);
-    });
-
-    // Initialize
-    load();
-    lastUpdatedEl.textContent = "Last updated: " + getManilaTimeString();
-  </script>
 </body>
 </html>
