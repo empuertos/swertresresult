@@ -2,63 +2,133 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PCSO Swertres Live Results</title>
+  <title>3D Lotto OBS Snippet</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    /* Transparent background for OBS overlay */
+    body {
+      margin: 0;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0);
+      color: #ffffff;
+      font-family: "Segoe UI", system-ui,-apple-system,BlinkMacSystemFont,monospace;
+      font-size: 20px;
+      line-height: 1.2;
+      -webkit-font-smoothing: antialiased;
+      display: inline-block;
+      white-space: pre;
+    }
+    .container {
+      background: rgba(0,0,0,0.6);
+      padding: 10px 14px;
+      border-radius: 8px;
+      display: inline-block;
+      min-width: 260px;
+    }
+    .title {
+      font-weight: 700;
+      margin: 0 0 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .line {
+      margin: 0;
+    }
+    .highlight {
+      font-weight: 600;
+    }
+    .small {
+      font-size: 0.85em;
+      opacity: 0.9;
+    }
+    .editable {
+      background: rgba(255,255,255,0.05);
+      border: none;
+      color: #fff;
+      font: inherit;
+      width: 60px;
+      padding: 0 4px;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .label {
+      display: inline-block;
+      width: 90px;
+    }
+    .hidden-inputs { display: none; }
+  </style>
 </head>
-<body style="margin:0;background:#0f172a;font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:12px;">
-  <div id="swertres-widget" style="width:100%;max-width:520px;">
-    <div style="background:#1f2937;color:#fff;border-radius:12px;padding:18px;box-shadow:0 14px 34px -8px rgba(0,0,0,0.35);">
-      <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px;">
-        <div>
-          <h1 style="margin:0;font-size:1.4rem;">PCSO Swertres 3D Lotto Results</h1>
-          <div id="swertres-date" style="font-size:0.9rem;opacity:0.85;margin-top:4px;">Loading date...</div>
-        </div>
-        <div style="font-size:0.65rem;">
-          <a id="swertres-source" href="https://www.lottopcso.com/swertres-result-today/" target="_blank" rel="noopener" style="color:#9ca3af;text-decoration:none;">Source: PCSO Official</a>
-        </div>
-      </div>
-      <div id="swertres-results" style="margin-top:14px;display:grid;gap:10px;">
-        <div class="slot" style="display:flex;justify-content:space-between;align-items:center;background:#111827;padding:14px;border-radius:10px;">
-          <div style="font-weight:600;">2:00 PM</div>
-          <div class="value" data-time="2:00 PM" style="font-family:monospace;font-size:1.1rem;">--</div>
-        </div>
-        <div class="slot" style="display:flex;justify-content:space-between;align-items:center;background:#111827;padding:14px;border-radius:10px;">
-          <div style="font-weight:600;">5:00 PM</div>
-          <div class="value" data-time="5:00 PM" style="font-family:monospace;font-size:1.1rem;">--</div>
-        </div>
-        <div class="slot" style="display:flex;justify-content:space-between;align-items:center;background:#111827;padding:14px;border-radius:10px;">
-          <div style="font-weight:600;">9:00 PM</div>
-          <div class="value" data-time="9:00 PM" style="font-family:monospace;font-size:1.1rem;">--</div>
-        </div>
-      </div>
-      <div id="swertres-status" style="margin-top:12px;font-size:0.65rem;color:#fcd34d;">Updating...</div>
+<body>
+  <div class="container" aria-label="3D Lotto Results OBS snippet">
+    <div class="title">🎲 3D Lotto Results Today</div>
+    <div class="line small" id="lastUpdated">Last updated: --:--:-- AM</div>
+    <div class="line">
+      <span class="label">2:00 PM:</span>
+      <input class="editable" id="r2" maxlength="10" placeholder="—" />
+    </div>
+    <div class="line">
+      <span class="label">5:00 PM:</span>
+      <input class="editable" id="r5" maxlength="10" placeholder="—" />
+    </div>
+    <div class="line">
+      <span class="label">9:00 PM:</span>
+      <input class="editable" id="r9" maxlength="10" placeholder="—" />
     </div>
   </div>
 
   <script>
-    const API_URL = "https://api.render.com/deploy/srv-d285snfdiees73damaeg?key=qfNGjTdbasE"; // replace with deployed backend
-    async function updateWidget() {
-      const statusEl = document.getElementById("swertres-status");
-      try {
-        const resp = await fetch(API_URL, { cache: "no-store" });
-        if (!resp.ok) throw new Error("Network response not OK");
-        const json = await resp.json();
-        if (!json.success) throw new Error(json.error || "API error");
-        const { date, results, fetched_at } = json.data;
-        document.getElementById("swertres-date").textContent = date;
-        document.querySelectorAll(".value").forEach(el => {
-          const time = el.getAttribute("data-time");
-          el.textContent = results[time] || "--";
-        });
-        statusEl.textContent = `Last updated: ${new Date(fetched_at).toLocaleTimeString("en-US", { hour12: true })}`;
-        statusEl.style.color = "#84cc16";
-      } catch (err) {
-        statusEl.textContent = "Failed to update. Will retry...";
-        statusEl.style.color = "#f87171";
-      }
+    // Utilities
+    function getManilaTimeString() {
+      const now = new Date();
+      return now.toLocaleTimeString("en-US", {
+        hour12: true,
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+        timeZone: "Asia/Manila"
+      });
     }
-    updateWidget();
-    setInterval(updateWidget, 30000);
+
+    // Elements
+    const lastUpdatedEl = document.getElementById("lastUpdated");
+    const input2 = document.getElementById("r2");
+    const input5 = document.getElementById("r5");
+    const input9 = document.getElementById("r9");
+
+    // Load persisted
+    function load() {
+      try {
+        const saved = JSON.parse(localStorage.getItem("obs_lotto_snippet") || "{}");
+        if (saved["2pm"]) input2.value = saved["2pm"];
+        if (saved["5pm"]) input5.value = saved["5pm"];
+        if (saved["9pm"]) input9.value = saved["9pm"];
+      } catch {}
+    }
+
+    // Persist on change
+    function persist() {
+      const obj = {
+        "2pm": input2.value.trim(),
+        "5pm": input5.value.trim(),
+        "9pm": input9.value.trim()
+      };
+      localStorage.setItem("obs_lotto_snippet", JSON.stringify(obj));
+    }
+
+    // Update time every second
+    setInterval(() => {
+      lastUpdatedEl.textContent = "Last updated: " + getManilaTimeString();
+    }, 1000);
+
+    // Hooks
+    [input2, input5, input9].forEach(i => {
+      i.addEventListener("input", persist);
+    });
+
+    // Initialize
+    load();
+    lastUpdatedEl.textContent = "Last updated: " + getManilaTimeString();
   </script>
 </body>
 </html>
